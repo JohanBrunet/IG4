@@ -1,0 +1,87 @@
+% !TeX encoding = UTF-8
+\documentclass[10pt,a4paper]{scrartcl}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[francais]{babel}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage[table]{xcolor}
+
+\title{Répartition des PIFE 5A}
+\subtitle{Rendu n\degre3}
+\author{Johan Brunet, Tristan Rivière\\
+   IG4 -G2,\\
+   Polytech Montpellier}
+\date{\today}
+
+\begin{document}
+\maketitle
+\section{Prélude}
+\subsection{Contexte \& Objectifs}
+\paragraph*{}
+Au cours de leur formation, les étudiants en Informatique et Gestion de Polytech sont amenés à participer à un projet industriel par groupe de 2 à 3 élèves.
+
+Une liste de projets leur est proposée et les élèves doivent constituer des groupes et choisir un sujet. Chaque sujet ne peux être choisi que par un seul groupe, il ne peux y avoir que 18 groupes car il n'y a que 18 projets, et chaque élève ne peux appartenir qu'à un seul groupe.
+\paragraph*{}
+Nous chercherons ici une méthode de constitution des groupes qui soit à la fois équitable, satisfaisante, stable, non manipulable et implémentable.
+
+\section{Modélisation}
+\subsection{Données}
+\paragraph{Promo}Soit $Promo_{n}$ l'ensemble des élèves d'une même promo que l'on souhaite répartir tel que : \\
+\begin{center}
+	$Promo_{n}=\left\{ eleve_{1}, ..., eleve_{n} \right\}$, n = taille de la promo 5A
+\end{center}
+\paragraph{Projets}Soit $Projets_{p}$ l'ensemble des projets tel que : \\
+\begin{center}
+	$Projets_{p}=\left\{ projet_{1}, ..., projet_{p} \right\}$, p = nombres de projets maximum
+\end{center}
+
+\paragraph{Répartition}Soit $R(n,p)$ une partition $\sigma(n)$ de $Promo_{n}$ tel que : \\
+\begin{center}
+	$|\sigma|\leq18$, $\forall g\epsilon\sigma , 2\leq |g| \leq3$
+\end{center}
+Si il y a $n \leqslant 36$ élèves, on a deux cas de figure : \\
+\begin{itemize}
+	\begin{item}
+		si n pair, on a $\frac{n}{2}$ binômes :  $\forall x \in \left\{ 1, ..., \frac{n}{2} \right\}, g_{x} = \left\{ e_{i}, e_{j} \right\}$, $\forall i, j \in n,\ i \neq j$
+	\end{item}
+	\begin{item}
+		si n impair, on a  $\lfloor \frac{n}{2} \rfloor$\footnote{$\lfloor \frac{n}{2} \rfloor$ est la partie entière de $\frac{n}{2}$} groupes, dont $\lfloor \frac{n}{2} \rfloor-1$ binômes et 1 trinôme :
+		
+		$\forall x \in \left\{ 1, ..., \lfloor \frac{n}{2} \rfloor -1 \right\}, g_{x} = \left\{ e_{i}, e_{j} \right\}$, $\forall i, j \in n,\ i \neq j$ \\
+		soit $i=\lfloor \frac{n}{2} \rfloor, g_{i} = \left\{ e_{k}, e_{l}, e_{m} \right\}$, $\forall k, l, m \in n\backslash\left\{ i, j \right\},\ k \neq l \neq m$ \newline
+	\end{item}
+\end{itemize}
+
+Si il y a $n > 36$ élèves, on a $n-36$ trinômes et $18-(n-36)$ binômes : \\
+$\forall x \in \left\{ 1, ..., i \right\} \ | \ i=n-36, g_{x} = \left\{ e_{j}, e_{k}, e_{l} \right\}$, $\forall j, k, l \in n,\ j \neq k \neq l$ \\
+et $\forall y \in \left\{ i+1, ..., n \right\} \ | \ n=18, g_{y} = \left\{ e_{f}, e_{h} \right\}$, $\forall f, h \in n\backslash\left\{ j, k, l \right\},\ f \neq h$
+
+\paragraph{Méthode} Une méthode de répartition est une correspondance 
+\begin{center}
+	$Meth\lbrace(Promo_{n}, Projets_{p}) | n\epsilon \lbrace2,...,54\rbrace, p\epsilon Entier* \rbrace$
+	$\rightarrow\lbrace R(n,p)\rbrace  n\epsilon \lbrace2,...,54\rbrace, p\epsilon Entier*$
+\end{center}
+
+\paragraph{Nombre de répartitions}
+Le nombre de partitions de $G(n)$, noté $|G(n)|$ est le nombre de combinaisons possibles pour la répartition des élèves dans des groupes.
+Le nombre pour un nombre maximal de 54 élèves on a que des trinômes, le nombre de partitions est donc :
+\begin{center}
+	$C_{54}^3 = 24804$
+\end{center}
+
+Le nombre de répartitions possibles $R(n,p)$, noté $|R(n,p)|$ est donné en multipliant le nombre de partitions de $G(n)$ (nombre de groupes que l'on peut former) par le nombre de répartitions possibles des projets. Or pour chaque projet $p$, on peut l'associer avec chacune des partitions de $G(n)$.
+Le nombre de répartitions des projets possibles est donc $p! = 18!$.
+
+Ce qui nous donne :
+\begin{center}
+	$|R(n,p)| = |G(n)| * p! = 24804 * 18! \approx 1,588*10^{20}$
+\end{center}
+
+\paragraph{Transitivité}
+Soient $g_{ij}\epsilon G(n)$ et $g_{jk}\epsilon G(n)$. \\
+Si $g_{ij} = 1$ (i est associé à j) et $g_{jk} = 1$ (j associé à k), alors on a $g_{ik} = 1$.
+De la même manière, Si $g_{ij} = 0$ (i n'est pas associé à j) et $g_{jk} = 0$, alors on a $g_{ik} = 0$.
+
+\end{document}

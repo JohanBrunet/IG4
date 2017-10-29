@@ -1,0 +1,73 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\begin{document}
+\title{Projet PIFE}
+\author{Tristan Rivière, Johan Brunet\\
+   IG4 -Gr2,\\
+   Polytech Montpellier}
+\date{\today}
+
+\maketitle
+\section{Prélude}
+\subsection{Contexte \& Objectifs}
+\paragraph*{}
+Au cours de leur formation, les étudiants en Informatique et Gestion de Polytech sont amenés à participer à un projet industriel par groupe de 2 à 3 élèves.
+
+Une liste de projets leur est proposée et les élèves doivent constituer des groupes et choisir un sujet. Chaque sujet ne peux être choisi que par un seul groupe, il ne peux y avoir que 18 groupes car il n'y a que 18 projets, et chaque élève ne peux appartenir qu'a un seul groupe.
+\paragraph*{}
+Nous chercherons ici une méthode de constitution des groupes qui soit à la fois équitable, satisfaisante, stable, non manipulable et implémentable.
+\subsection{Sujet}
+L'objectif de ce papier est de formaliser les caractéristiques auxquelles cette méthode devra pouvoir répondre.
+
+\section{Définition des termes}
+\begin{description}
+\item[Équitable :]
+On qualifiera d'équitable une méthode purement objective et ne plaçant aucune partie en avant vis à vis des autres, c'est-à-dire que chaque étudiant a autant de chance d'obtenir un projet.
+\item[Satisfaisant :]
+On pourra déclarer une méthode satisfaisante si le résultat obtenu minimise les attributions qui ne correspondent pas aux attentes des étudiants.
+\item[Stable :]
+Une méthode est dite stable si la solution qu'elle fournit ne peut pas être améliorée par une solution voisine.
+\item[Non Manipulable :]
+Une méthode est non manipulable si et seulement si une donnée ne peux pas être arrangée de manière à obtenir un résultat précis.
+\item[Implémentable :]
+Une méthode serra qualifié d'implémentable si elle peux être mise en place (programmée) et donne un résultat dans un temps raisonnable (quelques minutes/heures/jours).
+\end{description}
+\section{Modélisation}
+\subsection{Données}
+\paragraph{Étudiant}Soit E l'ensemble des élèves à répartir.
+\paragraph{Projets}Soit P l'ensemble des projets tel que :
+$$Card(P)\leqslant 18$$
+
+\paragraph{Groupes}Soit G l'ensemble des groupes d'élèves. Un groupe est un ensemble d'élèves tel que :
+$$\forall p \in P,\ 2\leqslant Card(p)\leqslant 3$$
+$$\forall e\ \in \ E,\ \exists g \ \in \ G \ | \ e \ \in \ g$$ 
+
+\paragraph{Mentions} Les étudiants devront attribuer, pour chaque projet et chaque étudiant, une mention parmi "Très bien", "Bien", "Assez bien", "Passable", "Insuffisant", "A rejeter" notées respectivement A, B, C, D, E, F.//
+Les mentions sont classées avec un ordre d'importance : A $>$ B $>$ C $>$ D $>$ E $>$ F.
+
+\subsection{Termes}
+\paragraph{}
+La méthode devra respecter les termes définis plus haut :
+\begin{description}
+\item[Équitable]
+Aucun étudiant n'est favorisé : 
+$$\forall e_{i},e_{j} \in E,\ e_{i} \nless e_{j}$$
+Plus généralement, on dira qu'il n'existe pas de relation d'ordre dans E.
+\item[Satisfaisant]
+On pourra maximiser les mentions "très bien" et "bien" ou alors minimiser les mentions inférieures à "satisfaisant".
+\item[Stable]
+L'ensemble des groupes formés à l'aide de la méthode constitue une solution optimale du programme, que l'on ne peut pas améliorer.
+\item[Non Manipulable]
+Quelque soit le bulletin, il n'y a pas de moyen de tirer avantage de la méthode. Personne ne doit pouvoir influencer la méthode avec un bulletin non conforme ou en connaissant les autres bulletins.//
+De plus, la méthode ne doit pas être soumise à intervention humaine au cours de sa réalisation, c'est-à-dire entre l'entrée des données et l'obtention du résultat.
+\end{description}
+
+\subsection{Méthode}
+\paragraph{Fonctions}
+On définit une fonction PREFprojet(ei) qui associe à un élève ses préférences de projets, ainsi qu'une fonction PREFeleve(ei) qui associe à un élève ses préférences concernant les autres élèves
+Ces préférences sont données par les mentions attribuées (voir le paragraphe "Mentions").
+On cherchera à maximiser l'une ou l'autre des fonctions afin d'avoir une répartition équitable et satisfaisante pour le plus d'élèves possibles.
+\end{document}

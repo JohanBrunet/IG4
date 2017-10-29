@@ -1,0 +1,377 @@
+\documentclass[10pt,a4paper]{scrartcl}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[francais]{babel}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage[table]{xcolor}
+\usepackage {tikz}
+\usetikzlibrary {positioning}
+%\usepackage {xcolor}
+\definecolor {processblue}{cmyk}{0.96,0,0,0}
+
+\title{Répartition des PIFE 5A}
+\subtitle{Rendu n\degre3}
+\author{Johan Brunet, Tristan Rivière\\
+   IG4 -G2,\\
+   Polytech Montpellier}
+\date{\today}
+
+\begin{document}
+\maketitle
+\section{Prélude}
+\subsection{Contexte \& Objectifs}
+\paragraph*{}
+Au cours de leur formation, les étudiants en Informatique et Gestion de Polytech sont amenés à participer à un projet industriel par groupe de 2 à 3 élèves.
+
+Une liste de projets leur est proposée et les élèves doivent constituer des groupes et choisir un sujet. Chaque sujet ne peux être choisi que par un seul groupe, il ne peux y avoir que 18 groupes car il n'y a que 18 projets, et chaque élève ne peux appartenir qu'à un seul groupe.
+\paragraph*{}
+Nous chercherons ici une méthode de constitution des groupes qui soit à la fois équitable, satisfaisante, stable, non manipulable et implémentable.
+\subsection{Sujet}
+L'objectif de ce papier est de formaliser les caractéristiques auxquelles cette méthode devra pouvoir répondre.
+
+\section{Modélisation}
+\subsection{Données}
+\paragraph{Promo}Soit $Promo_{n}$ l'ensemble des élèves d'une même promo que l'on souhaite répartir tel que : \\
+\begin{center}
+	$Promo_{n}=\left\{ eleve_{1}, ..., eleve_{n} \right\}$, n = taille de la promo 5A
+\end{center}
+\paragraph{Projets}Soit $Projets_{p}$ l'ensemble des projets tel que : \\
+\begin{center}
+	$Projets_{p}=\left\{ projet_{1}, ..., projet_{p} \right\}$, p = nombres de projets maximum
+\end{center}
+
+\paragraph{Répartition}Soit $R(n,p)$ une partition $\sigma(n)$ de $Promo_{n}$ tel que : \\
+\begin{center}
+	$|\sigma|\leq18$, $\forall g\epsilon\sigma , 2\leq |g| \leq3$
+\end{center}
+Si il y a $n \leqslant 36$ élèves, on a deux cas de figure : \\
+\begin{itemize}
+	\begin{item}
+		si n pair, on a $\frac{n}{2}$ binômes :  $\forall x \in \left\{ 1, ..., \frac{n}{2} \right\}, g_{x} = \left\{ e_{i}, e_{j} \right\}$, $\forall i, j \in n,\ i \neq j$
+	\end{item}
+	\begin{item}
+		si n impair, on a  $\lfloor \frac{n}{2} \rfloor$\footnote{$\lfloor \frac{n}{2} \rfloor$ est la partie entière de $\frac{n}{2}$} groupes, dont $\lfloor \frac{n}{2} \rfloor-1$ binômes et 1 trinôme :
+		
+		$\forall x \in \left\{ 1, ..., \lfloor \frac{n}{2} \rfloor -1 \right\}, g_{x} = \left\{ e_{i}, e_{j} \right\}$, $\forall i, j \in n,\ i \neq j$ \\
+		soit $i=\lfloor \frac{n}{2} \rfloor, g_{i} = \left\{ e_{k}, e_{l}, e_{m} \right\}$, $\forall k, l, m \in n\backslash\left\{ i, j \right\},\ k \neq l \neq m$ \newline
+	\end{item}
+\end{itemize}
+
+Si il y a $n > 36$ élèves, on a $n-36$ trinômes et $18-(n-36)$ binômes : \\
+$\forall x \in \left\{ 1, ..., i \right\} \ | \ i=n-36, g_{x} = \left\{ e_{j}, e_{k}, e_{l} \right\}$, $\forall j, k, l \in n,\ j \neq k \neq l$ \\
+et $\forall y \in \left\{ i+1, ..., n \right\} \ | \ n=18, g_{y} = \left\{ e_{f}, e_{h} \right\}$, $\forall f, h \in n\backslash\left\{ j, k, l \right\},\ f \neq h$
+
+\paragraph{Méthode} Une méthode de répartition est une correspondance 
+\begin{center}
+	$Meth\lbrace(Promo_{n}, Projets_{p}) | n\epsilon \lbraceé,...,50\rbrace, p\epsilon Entier* \rbrace$
+	$\rightarrow\lbrace R(n,p)\rbrace  n\epsilon \lbraceé,...,50\rbrace, p\epsilon Entier*$
+\end{center}
+
+
+\paragraph{Mentions} Soit M l'ensemble des mentions tel que :
+\begin{center}
+	$M=\left\{ TB, B, AB, P, I, AR \right\}$
+\end{center}
+Les mentions TB, B, AB, P, I, AR traduisent respectivement les préférences "Très bien", "Bien", "Assez bien", "Passable", "Insuffisant", "A rejeter". \\
+Les mentions suivent la relation d'ordre suivante sur M : \\
+$$ TB>B>AB>P>I>AR$$
+
+\subsection{Méthode}
+\paragraph{Fonctions}
+On définit une fonction $PREF_{projet}(e_{i}, p_{j})$ qui associe à un élève ses préférences de projets, ainsi qu'une fonction $PREF_{eleve}(e_{i}, e_{j})$ qui associe à un élève ses préférences concernant les autres élèves
+Ces préférences sont données par les mentions attribuées (voir le paragraphe "Mentions").
+On cherchera à maximiser l'une ou l'autre des fonctions afin d'avoir une répartition équitable et satisfaisante pour le plus d'élèves possibles.
+On a donc : \\
+$$ 
+\left\{
+	\begin{array}{ll}
+		PREF_{projet}(e_{i}, p_{j}) : E \times P \longrightarrow M \\
+		PREF_{eleve}(e_{i}, e_{j}) : E \times E \longrightarrow M
+	\end{array}
+\right.
+$$
+
+\newpage
+\paragraph{Bulletins}
+Les préférences seront données par les étudiants à l'aide de bulletins, présentés comme suit : \\
+
+\begin{table}[h!]
+	\begin{minipage}{.4\linewidth}
+		Bulletin de préférence élève-élève :\\
+		\begin{tabular}[h]{|*{7}{c|}}
+			\hline
+			$e_{i}$  & TB  & B  & AB  & P  & I  & AR \\
+			\hline
+			$e_{1}$  & X &  &  &  &  & \\
+			\hline
+			\vdots  & \ldots  & \ldots & \ldots & \ldots & \ldots & \ldots \\
+			\hline
+			$e_{i}$ & \cellcolor{gray}  & \cellcolor{gray} & \cellcolor{gray} & \cellcolor{gray} & \cellcolor{gray} & \cellcolor{gray} \\
+			\hline
+			\vdots  & \ldots  & \ldots & \ldots & \ldots & \ldots & \ldots \\
+			\hline
+			$e_{j}$  &  &  &  &  & X & \\
+			\hline
+			\vdots  & \ldots  & \ldots & \ldots & \ldots & \ldots & \ldots \\
+			\hline
+			$e_{n}$  &  & X &  &  &  & \\
+			\hline
+		\end{tabular}
+		
+		\vspace{0.2cm}
+		On a donc les préférences élève-élève suivantes : \\
+		$$ 
+		\left\{
+			\begin{array}{ll}
+				PREF_{eleve}(e_{i}, e_{1}) = TB \\
+				PREF_{eleve}(e_{i}, e_{j}) = I \\
+				PREF_{eleve}(e_{i}, e_{n}) = B
+			\end{array}
+		\right.
+		$$
+	\end{minipage}
+	\hfill
+	\begin{minipage}[h]{.4\linewidth}
+		Bulletin de préférence élève-projet :\\
+		\begin{tabular}{|*{7}{c|}}
+			\hline
+			$e_{i}$  & TB  & B  & AB  & P  & I  & AR \\
+			\hline
+			$p_{1}$  &  & X &  &  &  & \\
+			\hline
+			$p_{2}$  & X &  &  &  &  & \\
+			\hline
+			$p_{3}$  &  &  &  & X &  & \\
+			\hline
+			\vdots  & \ldots  & \ldots & \ldots & \ldots & \ldots & \ldots \\
+			\hline
+			$p_{n}$  &  &  &  &  &  & X \\
+			\hline
+		\end{tabular}
+	
+		\vspace{0.2cm}
+		On a donc les préférences élève-projet suivantes : \\
+		$$ 
+		\left\{
+			\begin{array}{ll}
+				PREF_{projet}(e_{i}, p_{1}) = B \\
+				PREF_{projet}(e_{i}, p_{2}) = TB \\
+				PREF_{projet}(e_{i}, p_{3}) = P \\
+				PREF_{projet}(e_{i}, p_{n}) = AR
+			\end{array}
+		\right.
+		$$
+	\end{minipage}
+\end{table}
+
+\vspace{0.5cm}
+On peut alors définir des matrices de préférences.
+
+\vspace{0.2cm}
+Matrice de préférences élèves-élèves : \\
+\begin{tabular}[h]{|*{8}{c|}}
+	\hline
+	  & $e_{1}$ & \ldots & $e_{i}$ & \ldots & $e_{j}$ & \ldots & $e_{n}$ \\
+	\hline
+	$e_{1}$  & \cellcolor{gray} & \ldots & TB & \ldots & AB & \ldots & B \\
+	\hline
+	\vdots  & \ldots  & \cellcolor{gray} & \ldots & \ldots & \ldots & \ldots & \ldots \\
+	\hline
+	$e_{i}$  & P & \ldots & \cellcolor{gray} & \ldots & I & \ldots & TB \\
+	\hline
+	\vdots  & \ldots  & \ldots & \ldots & \cellcolor{gray} & \ldots & \ldots & \ldots \\
+	\hline
+	$e_{j}$  & B & \ldots & B & \ldots & \cellcolor{gray} & \ldots & AR \\
+	\hline
+	\vdots  & \ldots  & \ldots & \ldots & \ldots & \ldots & \cellcolor{gray} & \ldots \\
+	\hline
+	$e_{n}$  & TB & \ldots & AB & \ldots & B & \ldots & \cellcolor{gray} \\
+	\hline
+\end{tabular}
+
+\vspace{0.5cm}
+Matrice de préférences élèves-projets :\\
+\begin{tabular}{|*{6}{c|}}
+	\hline
+	  & $p_{1}$  & $p_{2}$  & $p_{3}$  & \ldots & $p_{n}$ \\
+	\hline
+	$e_{1}$  & B & TB & I & \ldots & B \\
+	\hline
+	\vdots  & \ldots  & \ldots & \ldots & \ldots & \ldots \\
+	\hline
+	$e_{i}$  & B & AB & TB & \ldots & AR \\
+	\hline
+	\vdots  & \ldots  & \ldots & \ldots & \ldots & \ldots \\
+	\hline
+	$e_{n}$  & P & P & TB & \ldots & B \\
+	\hline
+\end{tabular}
+
+\paragraph{Résultat}
+le résultat de notre méthode nous donnera une Répartition R(n,p) représenté par une matrice binaire :
+$$\sigma\epsilon M\emph{n,p}(\lbrace0,1\rbrace)$$
+$\Omega_{ij}=1$ si le projet j est affecté au groupe de l'élève i.\\
+$\Omega_{(n,p)}(eleve_{i})=projet_{j}$
+
+\section{Dénombrements}
+Cette partie servira à dénombrer les nombres des combinaisons possibles pour les répartitions élèves-élèves ainsi que pour les répartitions groupes-projets.
+\paragraph{Répartition}Soit $R(n,p)$ une partition $\sigma(n)$ de $Promo_{n}$ tel que : \\
+\begin{center}
+	$|\sigma|\leq18$, $\forall g\epsilon\sigma , 2\leq |g| \leq3$
+\end{center}
+Si il y a $n \leqslant 36$ élèves, on a deux cas de figure : \\
+\begin{itemize}
+	\begin{item}
+		si n pair, on a $\frac{n}{2}$ binômes :  $\forall x \in \left\{ 1, ..., \frac{n}{2} \right\}, g_{x} = \left\{ e_{i}, e_{j} \right\}$, $\forall i, j \in n,\ i \neq j$
+	\end{item}
+	\begin{item}
+		si n impair, on a  $\lfloor \frac{n}{2} \rfloor$\footnote{$\lfloor \frac{n}{2} \rfloor$ est la partie entière de $\frac{n}{2}$} groupes, dont $\lfloor \frac{n}{2} \rfloor-1$ binômes et 1 trinôme :
+		
+		$\forall x \in \left\{ 1, ..., \lfloor \frac{n}{2} \rfloor -1 \right\}, g_{x} = \left\{ e_{i}, e_{j} \right\}$, $\forall i, j \in n,\ i \neq j$ \\
+		soit $i=\lfloor \frac{n}{2} \rfloor, g_{i} = \left\{ e_{k}, e_{l}, e_{m} \right\}$, $\forall k, l, m \in n\backslash\left\{ i, j \right\},\ k \neq l \neq m$ \newline
+	\end{item}
+\end{itemize}
+
+Si il y a $n > 36$ élèves, on a $n-36$ trinômes et $18-(n-36)$ binômes : \\
+$\forall x \in \left\{ 1, ..., i \right\} \ | \ i=n-36, g_{x} = \left\{ e_{j}, e_{k}, e_{l} \right\}$, $\forall j, k, l \in n,\ j \neq k \neq l$ \\
+et $\forall y \in \left\{ i+1, ..., n \right\} \ | \ n=18, g_{y} = \left\{ e_{f}, e_{h} \right\}$, $\forall f, h \in n\backslash\left\{ j, k, l \right\},\ f \neq h$
+
+\paragraph{Méthode} Une méthode de répartition est une correspondance 
+\begin{center}
+	$Meth\lbrace(Promo_{n}, Projets_{p}) | n\epsilon \lbrace2,...,54\rbrace, p\epsilon Entier* \rbrace$
+	$\rightarrow\lbrace R(n,p)\rbrace  n\epsilon \lbrace2,...,54\rbrace, p\epsilon Entier*$
+\end{center}
+
+\paragraph{Nombre de répartitions}
+Le nombre de partitions de $G(n)$, noté $|G(n)|$ est le nombre de combinaisons possibles pour la répartition des élèves dans des groupes.
+Le nombre pour un nombre maximal de 54 élèves on a que des trinômes, le nombre de partitions est donc :
+\begin{center}
+	$C_{54}^3 = 24804$
+\end{center}
+
+Le nombre de répartitions possibles $R(n,p)$, noté $|R(n,p)|$ est donné en multipliant le nombre de partitions de $G(n)$ (nombre de groupes que l'on peut former) par le nombre de répartitions possibles des projets. Or pour chaque projet $p$, on peut l'associer avec chacune des partitions de $G(n)$.
+Le nombre de répartitions des projets possibles est donc $p! = 18!$.
+
+Ce qui nous donne :
+\begin{center}
+	$|R(n,p)| = |G(n)| * p! = 24804 * 18! \approx 1,588*10^{20}$
+\end{center}
+
+\paragraph{Transitivité}
+Soient $g_{ij}\epsilon G(n)$ et $g_{jk}\epsilon G(n)$. \\
+Si $g_{ij} = 1$ (i est associé à j) et $g_{jk} = 1$ (j associé à k), alors on a $g_{ik} = 1$.
+De la même manière, Si $g_{ij} = 0$ (i n'est pas associé à j) et $g_{jk} = 0$, alors on a $g_{ik} = 0$.
+
+\section{Propositions}
+\subsection{Constat sur le présent}
+Afin de construire notre méthode, nous avons tout d'abord cherché des méthodes mises en oeuvre dans le passé afin de mettre en évidence leurs faiblesses et ainsi savoir quels pièges éviter lors de la construction de celle-ci.\\
+\paragraph{Cas 1}
+L'une des idées précédemment mise en avant était celle visant à la minimisation des mentions AR, I et P, ou bien  à la maximisation du nombre de mentions TB et B.
+Une telle méthode a récemment été employée pour la répartition d'élèves d'IG4 dans différentes équipes d'un projet. Chaque étudiant définissait ses préférences à l'aide d'un bulletin similaire à celui employé ici, puis l'algorithme détermine la répartition ainsi :\\
+On plaçait un maximum de personnes dans leur choix TB, puis on regardait si on pouvait placer les élèves restant sur l'une de leurs mentions bien. On effectuait ensuite un maximum d'échanges visant à faire passer les élèves n'ayant eu qu'une mention Bien vers une mention TB sans pour autant faire passer un autre élève de TB vers B.\\
+Si cette méthode semble au premier abord viable, une étude en profondeur de celle-ci nous permet de mettre en avant l'importance de construire une méthode équitable, et non manipulable.\\
+Nous avons remarqué les problèmes suivants : 
+- Si un bulletin ne comprend qu'une seul mention TB et un ensemble de mentions AR, alors le choix associé à cette mention TB sera forcément accordé car il fait monter le nombre de mentions TB ou B (et ceci au détriment d'un autre élève qui pourra se retrouver sur son second choix si il est associé à B au minimum. On a alors un soucis de manipulabilité.
+- Dans la même idée, on peut décider de ne mettre aucune mention TB mais seulement des mention Bien au maximum. L'algorithme va alors vouloir accomplir ses voeux car ils sont le signe que l'élève n'a pas obtenu ses premiers voeux !\\
+\\
+A l'observation de ces problèmes, nous en déduisons l'importance que l'algorithme ne cherche pas la maximisation des meilleurs mention (ou la minimisation des moins bonnes)).
+\paragraph{Cas 2}
+Une idée mise en avant pour résoudre le soucis de la manipulation était de mettre en place un traitement des bultin en amont afin de les normaliser.
+On définirait ainsi un bulletin idéal constitué par exemple de 2 mention TB, 4B, 150 AS, 15 P, 5I, et 2AR.\\
+De la on transformerait les bulletins afin de leur faire prendre la forme de ce bulletin idéal en transformant les surplus de chaque mention haute en une mention inférieur, et inversement les surplus des mention inférieur en des mentions supérieur.
+Une personne ayant alors pris la peine de nuancer ses choix ne verra son bulletin que très peu modifié. Une personne ayant décidé au contraire de ne mettre que des mentions TB et AR se verra son bulletin fortement changés sans pour autant modifier la satisfaction de celui-ci résultante à l'algorithme. Si il avais au départ 5TB, même si après transformation 3 d'entres elles se retrouvent avec la mention Bien, cela n'aura pas d'effet sur sa satisfaction car il à lui même choisi qu'il affectionnait autant ces 5 personnes. On supprimerait ainsi uniquement le risque de manipulation de la méthode.\\
+Néanmoins un tel système présente deux gros problèmes. Tout d'abord, prenons l'exemple de quelqu'un n'ayant mis que des TB : l'algorithme va tout de même chercher à le mettre avec les personnes qui sont rester dans des mention hautes suite à la transformation. Pourtant cette personne n'avait au départ aucune préférence et on aurait surement pu constituer de meilleurs groupes sans cette transformation\\
+\\
+On ne peux donc pas non plus chercher à faire une méthode qui traite les bulletins en amont afin d'éviter les manipulations.
+\paragraph{Conclusion}
+Suite à ces observations, nous pouvons ainsi éliminer un certains nombre de pistes et proposer une idée de méthode évitant certains pièges...
+
+\section{Algorithme}
+\subsection{Initialisation}
+On considère la matrice de préférences élèves-élèves suivante :
+
+$$
+\begin{matrix}
+	   &  & e1 & e2 & e3 & e4 & e5 \\
+	   &  &    &    &    &    &    \\   
+	e1 &  & -  & TB & AB & I  &  B \\
+	e2 &  & B  & -  & TB & B  & TB \\
+	e3 &  & TB & B  & -  & AR & I  \\
+	e4 &  & B  & TB & I  & -  & AB \\
+	e5 &  & TB & B  & AB & AB & -  \\
+\end{matrix}
+$$
+
+Pour la phase d'initialisation, nous représentons les préférences sous forme de graphe. Chaque élève correspond à un sommet, et chaque mention correspond à une arrête.
+On obtient alors un graphe similaire à celui ci-dessous (toutes les arrêtes n'ont pas été représentées pour des raisons de lisibilité).
+
+\begin {center}
+\begin {tikzpicture}[-latex ,auto ,node distance =4 cm and 5cm ,on grid ,
+semithick ,
+state/.style ={ circle ,top color =white , bottom color = processblue!20 ,
+	draw,processblue , text=blue , minimum width =1 cm}]
+\node[state] (e3) {$e3$};
+\node[state] (e1) [above left=of e3] {$e1$};
+\node[state] (e2) [above right =of e3] {$e2$};
+\node[state] (e4) [below left =of e3] {$e4$};
+\node[state] (e5) [below right =of e3] {$e5$};
+
+\path (e1) edge [bend right = -10] node[above right = 0.15 cm] {$AB$} (e3);
+\path (e3) edge [bend left = 10] node[below left = 0.15 cm] {$TB$} (e1);
+
+\path (e1) edge [bend left = 8] node[above = 0.15 cm] {$TB$} (e2);
+\path (e2) edge [bend left = 8] node[below = 0.15 cm] {$B$} (e1);
+
+\path (e2) edge [bend right = -10] node[below right = 0.15 cm] {$TB$} (e3);
+\path (e3) edge [bend left = 10] node[above left = 0.15 cm] {$B$} (e2);
+
+\path (e3) edge [bend right = -10] node[below right = 0.15 cm] {$AR$} (e4);
+\path (e4) edge [bend left = 10] node[above left = 0.15 cm] {$I$} (e3);
+
+\path (e1) edge [bend left = 8] node[right = 0.15 cm] {$I$} (e4);
+\path (e4) edge [bend left = 8] node[left = 0.15 cm] {$B$} (e1);
+
+\path (e2) edge [bend left = 8] node[right = 0.15 cm] {$TB$} (e5);
+\path (e5) edge [bend left = 8] node[left = 0.15 cm] {$B$} (e2);
+
+\path (e4) edge [bend left = 8] node[above = 0.15 cm] {$AB$} (e5);
+\path (e5) edge [bend left = 8] node[below = 0.15 cm] {$AB$} (e4);
+
+\path (e3) edge [bend right = -10] node[above right = 0.15 cm] {$I$} (e5);
+\path (e5) edge [bend left = 10] node[below left = 0.15 cm] {$AB$} (e3);
+\end{tikzpicture}
+\end{center}
+
+A partir de ce graphe, nous essayons de former des groupes selon les critères suivants :
+\begin{itemize}
+	\item le premier sommet du graphe correspond au premier élève dans l'ordre alphabétique
+	\item on recherche pour ce sommet les autres sommets avec lesquels il partage deux arrêtes portant la valeur "TB"
+	\item lorsque deux tels sommets sont trouvés, ils sont associés et les élèves correspondants sont placés dans le même groupe
+	\item ensuite on continue à appliquer cette méthode pour les sommets restants.
+\end{itemize}
+ Lorsqu'il n'y a plus de sommets partageant deux arrêtes "TB", on change de critère de sélection. Ceux-ci sont les suivants :
+ \begin{itemize}
+ 	\item TB - TB
+ 	\item TB - B
+ 	\item B - B
+ 	\item TB - AB
+ 	\item B - AB
+ 	\item AB - AB
+ \end{itemize}
+
+Dans le cas où l'on n'aurait pas traité tous les sommets après avoir utilisé le critère "AB - AB", on continue avec une mention inférieure.
+
+Lorsque tous les sommets ont été traités, des groupes sont constitués avec les associations de sommets faites au fur et à mesure des étapes.
+Ce premier algorithme permet de constituer une première répartition des groupes d'élèves, mais qui ne sera pas forcément optimale.
+
+\subsection{Optimisation}
+De là, on essaye de modifier cette répartition afin de maximiser la satisfaction globale des élèves. On définira la satisfaction global par une satisfaction maximale pour tous les groupes. 
+Par exemple si un groupe G1 a pour satisfaction totale $S1 = \{2TB, 1B\}$ mais qu'un autre groupe G2 a pour satisfaction $S2 = \{1TB, 2AB\}$, on cherche à augmenter la satisfaction du G2.
+Dans le cas où un "AB" du G2 deviendrait un "B" dans le G1 et le "B" du G1 deviendrait un "TB" dans le G2, la nouvelle satisfaction par groupe serait : $S1 = \{2TB, 1B\}$ et $S2 = \{2TB, 1AB\}$.
+Pour cette répartition on obtient une meilleure satisfaction totale.
+
+L'algorithme s'arrête lorsque lorsqu'une permutation la satisfaction est égale ou inférieure à la satisfaction précédente.
+
+\end{document}
