@@ -1,0 +1,12 @@
+# .git directory
+.git/
+
+# .DS_Store file from MacOS
+.DS_Store
+
+#node_modules
+node_modules
+
+# LaTeX side files
+.aux
+.synctex
