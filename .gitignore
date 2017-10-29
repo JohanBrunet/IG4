@@ -9,4 +9,5 @@ node_modules
 
 # LaTeX side files
 .aux
-.synctex
+.synctex.gz
+.log
